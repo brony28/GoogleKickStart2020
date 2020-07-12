@@ -1,0 +1,19 @@
+def solve():
+  k = input()
+  a = map(int, raw_input().split())
+  # Filter out repeated notes.
+  a = [a[i] for i in xrange(0, k) if i == 0 or a[i - 1] != a[i]]
+  upCount = 0
+  downCount = 0
+  violations = 0
+  for i in xrange(1, len(a)):
+    if a[i] > a[i - 1]:
+      upCount += 1
+      downCount = 0
+    else:
+      downCount += 1
+      upCount = 0
+    if upCount > 3 or downCount > 3:
+      violations += 1
+      upCount = downCount = 0
+  return violations

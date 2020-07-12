@@ -1,0 +1,13 @@
+int countRecordBreakingDays(vector<int> visitors) {
+  int recordBreaksCount = 0;
+  int previousRecord = 0;
+  for(int i = 0; i < checkpoints.size(); i++) {
+     bool greaterThanPreviousDays = i == 0 || visitors[i] > previousRecord;
+     bool greaterThanFollowingDay = i == checkpoints.size()-1 || visitors[i] > visitors[i+1];
+     if(greaterThanPreviousDays && greaterThanFollowingDay) {
+        recordBreaksCount++;
+     }
+     previousRecord = max(previousRecord, visitors[i]);
+  }
+  return recordBreaksCount;
+}

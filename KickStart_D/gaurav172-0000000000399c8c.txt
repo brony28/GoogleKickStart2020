@@ -1,0 +1,186 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long int
+#include <ext/pb_ds/assoc_container.hpp> 
+#include <ext/pb_ds/tree_policy.hpp> 
+using namespace __gnu_pbds;   
+#define ordered_set tree<ll, null_type,less<ll>, rb_tree_tag,tree_order_statistics_node_update> 
+#define ld long double
+#define ff first
+#define ss second
+#define pb push_back
+#define mp make_pair
+#define all(a) a.begin(),a.end()
+#define sz(a) (ll)(a.size())
+const int M = 1e5+5;
+int seg[4*M],n,D[M];
+void build(int i,int s,int e)
+{
+	if(s==e)
+	{
+		seg[i] = D[s];
+		return;
+	}
+	int m = (s+e)/2;
+	build(2*i,s,m);
+	build(2*i+1,m+1,e);
+	seg[i] = max(seg[2*i],seg[2*i+1]);
+}
+int query(int i,int s,int e,int l,int r)
+{
+	if(s>r || l>e)
+		return 0;
+	if(s>=l && e<=r)
+		return seg[i];
+	int m = (s+e)/2;
+	return max(query(2*i,s,m,l,r),query(2*i+1,m+1,e,l,r));
+}
+int findGt(int i,int s,int e,int l,int r,int x)
+{
+	if(s>r || l>e)
+		return -1;
+	int m = (s+e)/2;
+	if(s>=l && e<=r)
+	{
+		if(seg[i]<=x)
+			return -1;
+		if(s==e)
+		{
+			return s;
+		}
+		if(seg[2*i]>x)
+		{
+			return findGt(2*i,s,m,l,r,x);
+		}
+		else
+		{
+			return findGt(2*i+1,m+1,e,l,r,x);
+		}
+	}
+	int z = findGt(2*i,s,m,l,r,x);
+	if(z!=-1)
+		return z;
+	return findGt(2*i+1,m+1,e,l,r,x);
+}
+int findGt2(int i,int s,int e,int l,int r,int x)
+{
+	if(s>r || l>e)
+		return -1;
+	int m = (s+e)/2;
+	if(s>=l && e<=r)
+	{
+		if(seg[i]<=x)
+			return -1;
+		if(s==e)
+		{
+			return s;
+		}
+		if(seg[2*i+1]>x)
+		{
+			return findGt2(2*i+1,m+1,e,l,r,x);
+		}
+		else
+		{
+			return findGt2(2*i,s,m,l,r,x);
+		}
+	}
+	int z = findGt2(2*i+1,m+1,e,l,r,x);
+	if(z!=-1)
+		return z;
+	return findGt2(2*i,s,m,l,r,x);
+}
+void solveLeft(int s,int k)
+{
+	if(s==1)
+		return;
+	int l = 1,r = s-1,p=-1;
+	while(l<r)
+	{
+		int m = (l+r)/2;
+		if(p==m)
+			m++;
+		p=m;
+		// get the most difficult door from m to s
+		int z = query(1,1,n-1,m,s-1);
+		// get the difficult door
+		int y = findGt(1,1,n-1,s,n-1,z);
+		if(y==-1)
+			y=n;
+		int res = y-s+s-m;
+		if(res>=k-1)
+			l=m;
+		else
+			r=m-1;
+	}
+	int z = query(1,1,n-1,l,s-1);
+	// get the difficult door
+	int y = findGt(1,1,n-1,s,n-1,z);
+	if(y==-1)
+		y=n;
+	int res = y-s+s-l;
+	if(res==k-1)
+		cout<<l<<" ";
+}
+void solveRight(int s,int k)
+{
+	if(s==n)
+		return;
+	int l=s+1,r=n,p=-1;
+	while(l<r)
+	{
+		int m=(l+r)/2;
+		if(m==p)
+			m++;
+		p=m;
+		int z = query(1,1,n-1,s,m-1);
+		int y = findGt2(1,1,n-1,1,s-1,z);
+		if(y==-1)
+			y=0;
+		int res = s-1-y+m-s;
+		if(res>=k-1)
+			r=m;
+		else
+			l=m+1;
+	}
+	int z = query(1,1,n-1,s,r-1);
+	// get the difficult door
+	int y = findGt2(1,1,n-1,1,s-1,z);
+	if(y==-1)
+		y=0;
+	int res = s-1-y+r-s;
+	if(res==k-1)
+		cout<<r<<" ";
+}
+void solve()
+{
+	int q;
+	cin>>n>>q;
+	for(int i=1;i<n;i++)
+		cin>>D[i];
+	build(1,1,n-1);
+	while(q--)
+	{
+		int s,k;
+		cin>>s>>k;
+		if(k==1)
+		{
+			cout<<s<<" ";
+			continue;
+		}
+		solveLeft(s,k);
+		solveRight(s,k);
+	}
+	cout<<"\n";
+}
+int main()
+{
+	ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+	int test;
+	cin>>test;
+	for(int tt=1;tt<=test;tt++)
+	{
+		cout<<"Case #"<<tt<<": ";
+		solve();
+	}
+	return 0;
+}

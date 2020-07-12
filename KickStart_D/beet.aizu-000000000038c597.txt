@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+using namespace std;
+template<typename T1,typename T2> inline void chmin(T1 &a,T2 b){if(a>b) a=b;}
+template<typename T1,typename T2> inline void chmax(T1 &a,T2 b){if(a<b) a=b;}
+using Int = long long;
+const char newl = '\n';
+
+
+struct Precision{
+  Precision(){
+    cout<<fixed<<setprecision(12);
+  }
+}precision_beet;
+
+
+template<typename F>
+struct FixPoint : F{
+  FixPoint(F&& f):F(forward<F>(f)){}
+  template<typename... Args>
+  decltype(auto) operator()(Args&&... args) const{
+    return F::operator()(*this,forward<Args>(args)...);
+  }
+};
+template<typename F>
+inline decltype(auto) MFP(F&& f){
+  return FixPoint<F>{forward<F>(f)};
+}
+
+//INSERT ABOVE HERE
+signed solve(){
+  Int n,a,b;
+  cin>>n>>a>>b;
+  vector<vector<Int>> G(n);
+  for(Int i=1;i<n;i++){
+    Int p;
+    cin>>p;
+    p--;
+    G[p].emplace_back(i);
+    // G[i].emplace_back(p);
+  }
+  using D = double;
+  D ans=0;
+  vector<Int> cntA(a,0),cntB(b,0);
+  MFP([&](auto dfs,Int v,Int d)->void{
+    Int preA=cntA[d%a];
+    Int preB=cntB[d%b];
+    cntA[d%a]++;
+    cntB[d%b]++;
+    for(Int u:G[v]) dfs(u,d+1);
+    Int nxtA=cntA[d%a];
+    Int nxtB=cntB[d%b];
+    //cout<<v<<":"<<endl;
+    //cout<<preA<<' '<<nxtA<<endl;
+    //cout<<preB<<' '<<nxtB<<endl;
+
+    ans+=D(nxtA-preA)*n;
+    ans+=D(nxtB-preB)*n;
+    ans-=D(nxtA-preA)*D(nxtB-preB);
+  })(0,0);
+  cout<<ans/n/n<<newl;
+  return 0;
+}
+
+signed main(){
+  cin.tie(0);
+  ios::sync_with_stdio(0);
+  Int T;
+  cin>>T;
+  for(Int t=1;t<=T;t++){
+    cout<<"Case #"<<t<<": ";
+    solve();
+  }
+
+  return 0;
+}
